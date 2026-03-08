@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JGS CodeSynth - AI-Powered Code Editor</title>
+    <style>
+        :root {
+            --dark-bg: #1A1A1A;
+            --dark-text: #E0E0E0;
+            --accent: #2ECC71;
+            --toolbar-bg: #2C2C2C;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--dark-text);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            flex-grow: 1;
+            padding: 20px;
+        }
+
+        .editor-pane, .preview-pane {
+            border: 2px solid var(--toolbar-bg);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        #codeEditor {
+            width: 100%;
+            height: 100%;
+            background: #252525;
+            color: var(--accent);
+            padding: 15px;
+            border: none;
+            resize: none;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+        }
+
+        .toolbar {
+            background: var(--toolbar-bg);
+            padding: 10px;
+            display: flex;
+            gap: 15px;
+            border-bottom: 2px solid var(--dark-bg);
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        #previewFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        .file-input {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-input input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+        }
+
+        .export-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .export-options {
+            display: none;
+            position: absolute;
+            background: var(--toolbar-bg);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .export-menu:hover .export-options {
+            display: block;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            background: #000;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <select id="languageSelect">
+            <option value="html">HTML</option>
+            <option value="css">CSS</option>
+            <option value="js">JavaScript</option>
+        </select>
+        <button onclick="runCode()">Run ▶️</button>
+        <button onclick="clearEditor()">Clear ✖️</button>
+        
+        <div class="file-input">
+            <button>Upload 📁</button>
+            <input type="file" id="fileUpload" accept=".txt,.html,.js,.css">
+        </div>
+
+        <div class="export-menu">
+            <button>Export ⏬</button>
+            <div class="export-options">
+                <button onclick="exportAs('pdf')">PDF</button>
+                <button onclick="exportAs('html')">HTML</button>
+                <button onclick="exportAs('text')">Text</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="editor-pane">
+            <textarea id="codeEditor" spellcheck="false"></textarea>
+        </div>
+        
+        <div class="preview-pane">
+            <iframe id="previewFrame"></iframe>
+        </div>
+    </div>
+
+    <footer> JGS Code Run Pro 25.2v | Design By JGS LANKA CO.</footer>
+
+    <script>
+        const editor = document.getElementById('codeEditor');
+        const fileUpload = document.getElementById('fileUpload');
+
+        // File Upload Handler
+        fileUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                editor.value = e.target.result;
+            };
+            
+            reader.readAsText(file);
+        });
+
+        // Code Execution
+        function runCode() {
+            const code = editor.value;
+            const iframe = document.getElementById('previewFrame');
+            const lang = document.getElementById('languageSelect').value;
+
+            iframe.srcdoc = lang === 'html' ? code : 
+                `<html><body><script>${code}<\/script></body></html>`;
+        }
+
+        // Editor Management
+        function clearEditor() {
+            editor.value = '';
+            document.getElementById('previewFrame').srcdoc = '';
+        }
+
+        // Export Functions
+        function exportAs(format) {
+            const code = editor.value;
+            const blob = new Blob([code], {type: 'text/plain'});
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `code.${format}`;
+            a.click();
+        }
+
+        // Dark Mode Presets
+        document.body.classList.add('dark-mode');
+    </script>
+</body>
+</html>
